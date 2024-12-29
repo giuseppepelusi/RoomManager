@@ -1,0 +1,6 @@
+C1,Classroom,30,true,true
+C2,Classroom,25,false,true
+C3,Classroom,20,true,false
+L1,Laboratory,20,true,true
+L2,Laboratory,15,true,false
+L3,Laboratory,10,false,true
