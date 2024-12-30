@@ -5,9 +5,15 @@ import controllers.FileManager;
 import models.reservation.Reservation;
 
 import javax.swing.*;
+import javax.swing.text.MaskFormatter;
+
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.io.File;
 
 public class MainWindow extends JFrame {
@@ -22,7 +28,7 @@ public class MainWindow extends JFrame {
         this.fileManager = fileManager;
         this.currentDate = LocalDate.now();
 
-        setTitle("Room Reservation System");
+        setTitle("Room Manager");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 650);
         setLocationRelativeTo(null);
@@ -30,6 +36,14 @@ public class MainWindow extends JFrame {
         // Create main components
         tableView = new RoomTableView(reservationManager);
         dateLabel = new JLabel(currentDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        dateLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    editDate();
+                }
+            }
+        });
 
         // Create menu bar
         setJMenuBar(createMenuBar());
@@ -62,9 +76,12 @@ public class MainWindow extends JFrame {
         JMenu editMenu = new JMenu("Edit");
         JMenuItem addItem = new JMenuItem("Add Reservation");
         addItem.addActionListener(e -> showAddReservationDialog());
+        JMenuItem editItem = new JMenuItem("Edit Reservation");
+        editItem.addActionListener(e -> showEditReservationDialog());
         JMenuItem removeItem = new JMenuItem("Remove Reservation");
         removeItem.addActionListener(e -> removeSelectedReservation());
         editMenu.add(addItem);
+        editMenu.add(editItem);
         editMenu.add(removeItem);
         
         menuBar.add(fileMenu);
@@ -202,5 +219,55 @@ public class MainWindow extends JFrame {
     private void changeDate(int days) {
         currentDate = currentDate.plusDays(days);
         updateTable();
+    }
+
+    private void editDate() {
+        JFormattedTextField dateField = createFormattedDateField();
+        dateField.setValue(currentDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        dateField.requestFocusInWindow(); // Set focus to the text field
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(new JLabel("Enter new date (dd/MM/yyyy):"), BorderLayout.NORTH);
+        panel.add(dateField, BorderLayout.CENTER);
+
+        JDialog dialog = new JDialog(this, "Edit Date", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(300, 150);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+        dialog.add(panel, BorderLayout.CENTER);
+
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(e -> {
+            try {
+                String newDateStr = dateField.getText();
+                LocalDate newDate = LocalDate.parse(newDateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                currentDate = newDate;
+                updateTable();
+                dialog.dispose();
+            } catch (DateTimeParseException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid date format. Please enter the date in dd/MM/yyyy format.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(e -> dialog.dispose());
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(okButton);
+        buttonPanel.add(cancelButton);
+
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+        dialog.setVisible(true);
+    }
+
+    private JFormattedTextField createFormattedDateField() {
+        try {
+            MaskFormatter dateFormatter = new MaskFormatter("##/##/####");
+            dateFormatter.setPlaceholderCharacter(' ');
+            return new JFormattedTextField(dateFormatter);
+        } catch (ParseException e) {
+            throw new RuntimeException("Failed to create date formatter", e);
+        }
     }
 }

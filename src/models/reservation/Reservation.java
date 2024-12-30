@@ -44,7 +44,7 @@ public class Reservation {
         if (!this.date.equals(other.date) || !this.room.equals(other.room)) {
             return false;
         }
-        return !(this.endTime.isBefore(other.startTime) || this.startTime.isAfter(other.endTime));
+        return !(this.endTime.isBefore(other.startTime) || this.endTime.equals(other.startTime) || this.startTime.isAfter(other.endTime));
     }
 
     @Override
