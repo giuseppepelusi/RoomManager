@@ -6,7 +6,6 @@ import models.reservation.Reservation;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.io.File;
@@ -25,7 +24,7 @@ public class MainWindow extends JFrame {
 
         setTitle("Room Reservation System");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000, 600);
+        setSize(1000, 650);
         setLocationRelativeTo(null);
 
         // Create main components
@@ -39,7 +38,6 @@ public class MainWindow extends JFrame {
         setLayout(new BorderLayout());
         add(createToolBar(), BorderLayout.NORTH);
         add(new JScrollPane(tableView), BorderLayout.CENTER);
-        add(createStatusBar(), BorderLayout.SOUTH);
 
         updateTable();
     }
@@ -64,7 +62,10 @@ public class MainWindow extends JFrame {
         JMenu editMenu = new JMenu("Edit");
         JMenuItem addItem = new JMenuItem("Add Reservation");
         addItem.addActionListener(e -> showAddReservationDialog());
+        JMenuItem removeItem = new JMenuItem("Remove Reservation");
+        removeItem.addActionListener(e -> removeSelectedReservation());
         editMenu.add(addItem);
+        editMenu.add(removeItem);
         
         menuBar.add(fileMenu);
         menuBar.add(editMenu);
@@ -79,12 +80,20 @@ public class MainWindow extends JFrame {
         JButton addButton = new JButton("Add Reservation");
         addButton.addActionListener(e -> showAddReservationDialog());
 
+        JButton editButton = new JButton("Edit Reservation");
+        editButton.addActionListener(e -> showEditReservationDialog());
+
+        JButton removeButton = new JButton("Remove Reservation");
+        removeButton.addActionListener(e -> removeSelectedReservation());
+
         JButton prevDay = new JButton("←");
         prevDay.addActionListener(e -> changeDate(-1));
         JButton nextDay = new JButton("→");
         nextDay.addActionListener(e -> changeDate(1));
 
         toolBar.add(addButton);
+        toolBar.add(editButton);
+        toolBar.add(removeButton);
         toolBar.addSeparator();
         toolBar.add(prevDay);
         toolBar.add(dateLabel);
@@ -93,19 +102,41 @@ public class MainWindow extends JFrame {
         return toolBar;
     }
 
-    private JPanel createStatusBar() {
-        JPanel statusBar = new JPanel(new BorderLayout());
-        statusBar.setBorder(BorderFactory.createEtchedBorder());
-        JLabel statusLabel = new JLabel(" Ready");
-        statusBar.add(statusLabel, BorderLayout.WEST);
-        return statusBar;
-    }
-
     private void showAddReservationDialog() {
         ReservationDialog dialog = new ReservationDialog(this, reservationManager, currentDate);
         dialog.setVisible(true);
         if (dialog.getReservation() != null) {
             updateTable();
+        }
+    }
+
+    private void showEditReservationDialog() {
+        Reservation selectedReservation = tableView.getSelectedReservation();
+        if (selectedReservation != null) {
+            ReservationDialog dialog = new ReservationDialog(this, reservationManager, selectedReservation);
+            dialog.setVisible(true);
+            if (dialog.getReservation() != null) {
+                updateTable();
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "No reservation selected.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void removeSelectedReservation() {
+        Reservation selectedReservation = tableView.getSelectedReservation();
+        if (selectedReservation != null) {
+            int response = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to remove the selected reservation?",
+                "Confirm Removal",
+                JOptionPane.YES_NO_OPTION);
+            if (response == JOptionPane.YES_OPTION) {
+                reservationManager.removeReservation(selectedReservation);
+                updateTable();
+                JOptionPane.showMessageDialog(this, "Reservation removed successfully!");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "No reservation selected.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

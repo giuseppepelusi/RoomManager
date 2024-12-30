@@ -24,10 +24,21 @@ public class RoomTableView extends JTable {
         setDefaultRenderer(Object.class, new ReservationCellRenderer());
         setRowHeight(50);
         getTableHeader().setReorderingAllowed(false);
+        setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        setCellSelectionEnabled(true); // Enable cell selection instead of row selection
     }
 
     public void updateData(LocalDate date) {
         model.updateData(date);
+    }
+
+    public Reservation getSelectedReservation() {
+        int selectedRow = getSelectedRow();
+        int selectedColumn = getSelectedColumn();
+        if (selectedRow >= 0 && selectedColumn > 0) {
+            return (Reservation) getValueAt(selectedRow, selectedColumn);
+        }
+        return null;
     }
 
     private class RoomTableModel extends AbstractTableModel {
@@ -64,7 +75,9 @@ public class RoomTableView extends JTable {
         @Override
         public Object getValueAt(int row, int column) {
             if (column == 0) {
-                return String.format("%02d:00", row + 8);
+                LocalTime startTime = LocalTime.of(row + 8, 0);
+                LocalTime endTime = startTime.plusHours(1);
+                return String.format("%02d:00 - %02d:00", startTime.getHour(), endTime.getHour());
             }
 
             Room room = rooms.get(column - 1);
@@ -93,6 +106,8 @@ public class RoomTableView extends JTable {
 
             if (column == 0) {
                 setHorizontalAlignment(JLabel.CENTER);
+                setBackground(table.getBackground());
+                setForeground(table.getForeground());
                 return c;
             }
 
@@ -101,10 +116,17 @@ public class RoomTableView extends JTable {
                     reservation.getReservedBy(),
                     reservation.getType().getDisplayName()));
                 setBackground(getReservationColor(reservation));
+                setForeground(Color.DARK_GRAY); // Set text color to dark grey
                 setHorizontalAlignment(JLabel.CENTER);
             } else {
                 setText("");
                 setBackground(table.getBackground());
+                setForeground(table.getForeground());
+            }
+
+            if (isSelected) {
+                setBackground(table.getSelectionBackground());
+                setForeground(table.getSelectionForeground());
             }
 
             return c;
@@ -112,10 +134,10 @@ public class RoomTableView extends JTable {
 
         private Color getReservationColor(Reservation reservation) {
             return switch (reservation.getType()) {
-                case LESSON -> new Color(200, 230, 200);
-                case EXAM -> new Color(255, 200, 200);
-                case RECOVERY -> new Color(200, 200, 255);
-                default -> new Color(230, 230, 230);
+                case LESSON -> new Color(135, 206, 250); // Light Sky Blue
+                case EXAM -> new Color(255, 160, 122);   // Light Salmon
+                case RECOVERY -> new Color(144, 238, 144); // Light Green
+                default -> new Color(255, 255, 153);      // Light Yellow
             };
         }
     }

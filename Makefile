@@ -12,7 +12,7 @@ run:
 	java -cp $(BIN_DIR) $(MAIN_CLASS)
 
 clean:
-	rm -rf $(BIN_DIR)/*
+	rm -rf $(BIN_DIR)
 
 .SILENT: all compile run clean
 .PHONY: all compile run clean

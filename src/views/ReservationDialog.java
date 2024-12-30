@@ -8,7 +8,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Vector;
 
 public class ReservationDialog extends JDialog {
     private final ReservationManager manager;
@@ -20,18 +19,45 @@ public class ReservationDialog extends JDialog {
     private JComboBox<LocalTime> endTimeCombo;
     private JTextField nameField;
     private JComboBox<ReservationType> typeCombo;
+    private JPanel featurePanel;
+    private JCheckBox whiteboardCheckBox;
+    private JCheckBox projectorCheckBox;
+    private JCheckBox pcsCheckBox;
+    private JCheckBox outletsCheckBox;
+    private JButton okButton;
 
     public ReservationDialog(Frame owner, ReservationManager manager, LocalDate date) {
-        super(owner, "New Reservation", true);
+        this(owner, manager, date, "New Reservation");
+    }
+
+    public ReservationDialog(Frame owner, ReservationManager manager, LocalDate date, String title) {
+        super(owner, title, true);
         this.manager = manager;
         this.date = date;
 
-        setSize(400, 300);
+        setSize(400, 380);
         setLocationRelativeTo(owner);
         setLayout(new BorderLayout());
 
         add(createMainPanel(), BorderLayout.CENTER);
         add(createButtonPanel(), BorderLayout.SOUTH);
+
+        updateOkButtonState();
+    }
+
+    public ReservationDialog(Frame owner, ReservationManager manager, Reservation reservation) {
+        this(owner, manager, reservation.getDate(), "Edit Reservation");
+        this.reservation = reservation;
+
+        roomCombo.setSelectedItem(reservation.getRoom());
+        roomCombo.setEnabled(false); // Disable room selection for editing
+
+        startTimeCombo.setSelectedItem(reservation.getStartTime());
+        endTimeCombo.setSelectedItem(reservation.getEndTime());
+        nameField.setText(reservation.getReservedBy());
+        typeCombo.setSelectedItem(reservation.getType());
+
+        updateOkButtonState();
     }
 
     private JPanel createMainPanel() {
@@ -44,55 +70,111 @@ public class ReservationDialog extends JDialog {
         gbc.gridx = 0; gbc.gridy = 0;
         panel.add(new JLabel("Room:"), gbc);
         gbc.gridx = 1;
-        roomCombo = new JComboBox<>(new Vector<>(manager.getAllRooms()));
-        roomCombo.addActionListener(e -> updateStartTimeCombo());
+        roomCombo = new JComboBox<>();
+        roomCombo.addItem(null); // Add placeholder item
+        manager.getAllRooms().forEach(roomCombo::addItem);
+        roomCombo.addActionListener(e -> {
+            updateRoomFeatures();
+            updateOkButtonState();
+        });
         panel.add(roomCombo, gbc);
 
+        // Room features
+        gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 2;
+        featurePanel = new JPanel(new GridLayout(2, 2));
+        whiteboardCheckBox = createFeatureCheckBox("Whiteboard");
+        projectorCheckBox = createFeatureCheckBox("Projector");
+        pcsCheckBox = createFeatureCheckBox("PCs");
+        outletsCheckBox = createFeatureCheckBox("Electrical Outlets");
+        featurePanel.add(whiteboardCheckBox);
+        featurePanel.add(projectorCheckBox);
+        featurePanel.add(pcsCheckBox);
+        featurePanel.add(outletsCheckBox);
+        panel.add(featurePanel, gbc);
+        gbc.gridwidth = 1;
+
         // Start time
-        gbc.gridx = 0; gbc.gridy = 1;
+        gbc.gridx = 0; gbc.gridy = 2;
         panel.add(new JLabel("Start Time:"), gbc);
         gbc.gridx = 1;
         startTimeCombo = new JComboBox<>();
-        startTimeCombo.addActionListener(e -> updateEndTimeCombo());
+        startTimeCombo.addActionListener(e -> {
+            updateEndTimeCombo();
+            updateOkButtonState();
+        });
         panel.add(startTimeCombo, gbc);
 
         // End time
-        gbc.gridx = 0; gbc.gridy = 2;
+        gbc.gridx = 0; gbc.gridy = 3;
         panel.add(new JLabel("End Time:"), gbc);
         gbc.gridx = 1;
         endTimeCombo = new JComboBox<>();
+        endTimeCombo.addActionListener(e -> updateOkButtonState());
         panel.add(endTimeCombo, gbc);
 
         // Name
-        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.gridx = 0; gbc.gridy = 4;
         panel.add(new JLabel("Reserved By:"), gbc);
         gbc.gridx = 1;
         nameField = new JTextField(20);
+        nameField.getDocument().addDocumentListener(new SimpleDocumentListener(this::updateOkButtonState));
         panel.add(nameField, gbc);
 
         // Type
-        gbc.gridx = 0; gbc.gridy = 4;
+        gbc.gridx = 0; gbc.gridy = 5;
         panel.add(new JLabel("Type:"), gbc);
         gbc.gridx = 1;
         typeCombo = new JComboBox<>(ReservationType.values());
+        typeCombo.addActionListener(e -> updateOkButtonState());
         panel.add(typeCombo, gbc);
 
         return panel;
     }
 
+    private JCheckBox createFeatureCheckBox(String text) {
+        JCheckBox checkBox = new JCheckBox(text);
+        checkBox.setEnabled(false);
+        return checkBox;
+    }
+
     private JPanel createButtonPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        
-        JButton okButton = new JButton("OK");
+
+        okButton = new JButton("OK");
         okButton.addActionListener(e -> createReservation());
-        
+
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(e -> dispose());
-        
+
         panel.add(okButton);
         panel.add(cancelButton);
-        
+
         return panel;
+    }
+
+    private void updateRoomFeatures() {
+        Room selectedRoom = (Room) roomCombo.getSelectedItem();
+        if (selectedRoom instanceof Classroom classroom) {
+            whiteboardCheckBox.setVisible(true);
+            projectorCheckBox.setVisible(true);
+            pcsCheckBox.setVisible(false);
+            outletsCheckBox.setVisible(false);
+            whiteboardCheckBox.setSelected(classroom.hasWhiteboard());
+            projectorCheckBox.setSelected(classroom.hasProjector());
+        } else if (selectedRoom instanceof Laboratory laboratory) {
+            whiteboardCheckBox.setVisible(false);
+            projectorCheckBox.setVisible(false);
+            pcsCheckBox.setVisible(true);
+            outletsCheckBox.setVisible(true);
+            pcsCheckBox.setSelected(laboratory.hasPCs());
+            outletsCheckBox.setSelected(laboratory.hasElectricalOutlets());
+        } else {
+            whiteboardCheckBox.setVisible(false);
+            projectorCheckBox.setVisible(false);
+            pcsCheckBox.setVisible(false);
+            outletsCheckBox.setVisible(false);
+        }
+        updateStartTimeCombo();
     }
 
     private void updateStartTimeCombo() {
@@ -120,38 +202,16 @@ public class ReservationDialog extends JDialog {
             int maxDuration = selectedRoom.getMaxReservationDuration();
             LocalTime endTime = startTime.plusHours(increment);
 
-            while (!endTime.isAfter(LocalTime.of(18, 0)) && 
-                   !endTime.isBefore(startTime) && 
-                   endTime.isBefore(startTime.plusHours(maxDuration + 1))) {
+            while (!endTime.isAfter(LocalTime.of(18, 0)) &&
+                    !endTime.isBefore(startTime) &&
+                    !endTime.isAfter(startTime.plusHours(maxDuration))) {
                 endTimeCombo.addItem(endTime);
                 endTime = endTime.plusHours(increment);
             }
 
-            // Ensure 18:00 is included if it is a valid end time
-            if (endTimeCombo.getItemCount() > 0 && endTimeCombo.getItemAt(endTimeCombo.getItemCount() - 1).isBefore(LocalTime.of(18, 0))) {
-                LocalTime lastEndTime = endTimeCombo.getItemAt(endTimeCombo.getItemCount() - 1);
-                if (lastEndTime.plusHours(increment).equals(LocalTime.of(18, 0))) {
-                    endTimeCombo.addItem(LocalTime.of(18, 0));
-                }
-            }
-
-            // Remove 18:00 if it exceeds the max duration for classrooms
-            if (selectedRoom instanceof Classroom && startTime.plusHours(maxDuration).isBefore(LocalTime.of(18, 0))) {
-                endTimeCombo.removeItem(LocalTime.of(18, 0));
-            }
-
-            // Ensure end times are available for start times between 15:00 and 17:00 for classrooms
-            if (selectedRoom instanceof Classroom) {
-                LocalTime maxEndTime = startTime.plusHours(maxDuration);
-                if (maxEndTime.isAfter(LocalTime.of(18, 0))) {
-                    maxEndTime = LocalTime.of(18, 0);
-                }
-                endTimeCombo.removeAllItems();
-                endTime = startTime.plusHours(increment);
-                while (!endTime.isAfter(maxEndTime) && !endTime.isBefore(startTime)) {
-                    endTimeCombo.addItem(endTime);
-                    endTime = endTime.plusHours(increment);
-                }
+            // Ensure at least one end time is available
+            if (endTimeCombo.getItemCount() == 0) {
+                endTimeCombo.addItem(LocalTime.of(18, 0));
             }
         }
     }
@@ -163,15 +223,56 @@ public class ReservationDialog extends JDialog {
         String reservedBy = nameField.getText();
         ReservationType type = (ReservationType) typeCombo.getSelectedItem();
 
-        reservation = new Reservation(room, date, startTime, endTime, reservedBy, type);
-        if (manager.addReservation(reservation)) {
-            dispose();
+        if (reservation == null) {
+            reservation = new Reservation(room, date, startTime, endTime, reservedBy, type);
+            if (manager.addReservation(reservation)) {
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to add reservation. Please check the details and try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         } else {
-            JOptionPane.showMessageDialog(this, "Failed to add reservation. Please check the details and try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            reservation.setDate(date);
+            reservation.setStartTime(startTime);
+            reservation.setEndTime(endTime);
+            reservation.setReservedBy(reservedBy);
+            reservation.setType(type);
+            dispose();
         }
     }
 
     public Reservation getReservation() {
         return reservation;
+    }
+
+    private void updateOkButtonState() {
+        boolean allFieldsFilled = roomCombo.getSelectedItem() != null &&
+                                  startTimeCombo.getSelectedItem() != null &&
+                                  endTimeCombo.getSelectedItem() != null &&
+                                  !nameField.getText().trim().isEmpty() &&
+                                  typeCombo.getSelectedItem() != null;
+        okButton.setEnabled(allFieldsFilled);
+    }
+
+    private static class SimpleDocumentListener implements javax.swing.event.DocumentListener {
+        private final Runnable onChange;
+
+        public SimpleDocumentListener(Runnable onChange) {
+            this.onChange = onChange;
+        }
+
+        @Override
+        public void insertUpdate(javax.swing.event.DocumentEvent e) {
+            onChange.run();
+        }
+
+        @Override
+        public void removeUpdate(javax.swing.event.DocumentEvent e) {
+            onChange.run();
+        }
+
+        @Override
+        public void changedUpdate(javax.swing.event.DocumentEvent e) {
+            onChange.run();
+        }
     }
 }
