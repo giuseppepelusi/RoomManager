@@ -88,26 +88,19 @@ public class ValidationUtils {
         return ValidationResult.success();
     }
 
-    public static ValidationResult validateNoConflict(Reservation newReservation, 
-                                                    List<Reservation> existingReservations) {
-        boolean hasConflict = existingReservations.stream()
-            .filter(r -> r.getRoom().equals(newReservation.getRoom()))
-            .filter(r -> r.getDate().equals(newReservation.getDate()))
-            .anyMatch(r -> {
-                LocalTime newStart = newReservation.getStartTime();
-                LocalTime newEnd = newReservation.getEndTime();
-                LocalTime existingStart = r.getStartTime();
-                LocalTime existingEnd = r.getEndTime();
+    public static ValidationResult validateNoConflict(Reservation newReservation, List<Reservation> existingReservations, Reservation reservationBeingEdited) {
+    	boolean hasConflict = existingReservations.stream()
+    			.filter(r -> r.getRoom().equals(newReservation.getRoom()))
+    			.filter(r -> r.getDate().equals(newReservation.getDate()))
+    			.filter(r -> !r.equals(reservationBeingEdited)) // Exclude the reservation being edited
+    			.anyMatch(r -> r.overlaps(newReservation) && !r.getEndTime().equals(newReservation.getStartTime()) && !r.getStartTime().equals(newReservation.getEndTime()));
 
-                return !(newEnd.isBefore(existingStart) || newStart.isAfter(existingEnd));
-            });
+    	if (hasConflict) {
+   			return ValidationResult.failure("This time slot conflicts with an existing reservation");
+    	}
 
-        if (hasConflict) {
-            return ValidationResult.failure("This time slot conflicts with an existing reservation");
-        }
-
-        return ValidationResult.success();
-    }
+		return ValidationResult.success();
+	}
 
     public static ValidationResult validateRoom(Room room, int requiredCapacity) {
         if (room == null) {

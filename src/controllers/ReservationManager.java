@@ -2,6 +2,7 @@ package controllers;
 
 import models.reservation.Reservation;
 import models.room.Room;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
@@ -75,6 +76,11 @@ public class ReservationManager {
 
     public List<Reservation> getAllReservations() {
         return Collections.unmodifiableList(reservations);
+    }
+
+    public void loadReservations(List<Reservation> reservations) {
+        this.reservations.clear();
+        this.reservations.addAll(reservations);
     }
 
     public void loadReservations(String filename) {

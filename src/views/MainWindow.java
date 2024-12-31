@@ -5,6 +5,7 @@ import controllers.FileManager;
 import models.reservation.Reservation;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.MaskFormatter;
 
 import java.awt.*;
@@ -150,7 +151,6 @@ public class MainWindow extends JFrame {
             if (response == JOptionPane.YES_OPTION) {
                 reservationManager.removeReservation(selectedReservation);
                 updateTable();
-                JOptionPane.showMessageDialog(this, "Reservation removed successfully!");
             }
         } else {
             JOptionPane.showMessageDialog(this, "No reservation selected.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -159,6 +159,7 @@ public class MainWindow extends JFrame {
 
     private void saveReservations() {
         JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Reservation Files (*.resv)", "resv"));
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             if (file.exists()) {
@@ -185,6 +186,7 @@ public class MainWindow extends JFrame {
 
     private void loadReservations() {
         JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Reservation Files (*.resv)", "resv"));
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             try {

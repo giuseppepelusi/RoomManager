@@ -3,11 +3,13 @@ package views;
 import controllers.ReservationManager;
 import models.reservation.*;
 import models.room.*;
+import utils.ValidationUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 public class ReservationDialog extends JDialog {
     private final ReservationManager manager;
@@ -222,6 +224,26 @@ public class ReservationDialog extends JDialog {
         LocalTime endTime = (LocalTime) endTimeCombo.getSelectedItem();
         String reservedBy = nameField.getText();
         ReservationType type = (ReservationType) typeCombo.getSelectedItem();
+
+        // Validate reservation
+        List<Reservation> existingReservations = manager.getReservationsForDate(date);
+        ValidationUtils.ValidationResult validationResult = ValidationUtils.validateReservationTime(room, startTime, endTime, date);
+        if (!validationResult.isValid()) {
+            JOptionPane.showMessageDialog(this, validationResult.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        validationResult = ValidationUtils.validateReservedBy(reservedBy);
+        if (!validationResult.isValid()) {
+            JOptionPane.showMessageDialog(this, validationResult.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        validationResult = ValidationUtils.validateNoConflict(new Reservation(room, date, startTime, endTime, reservedBy, type), existingReservations, reservation);
+        if (!validationResult.isValid()) {
+            JOptionPane.showMessageDialog(this, validationResult.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         if (reservation == null) {
             reservation = new Reservation(room, date, startTime, endTime, reservedBy, type);

@@ -7,14 +7,18 @@ import models.room.Room;
 import models.room.RoomType;
 
 import java.io.*;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class FileManager {
     private static final String DEFAULT_ROOMS_FILE = "config/rooms.txt";
     private static final String DEFAULT_TEMP_FILE = "reservations.temp";
+    private static final String RESERVATION_FILE_EXTENSION = ".resv";
 
     public void saveReservations(String filename, List<Reservation> reservations) {
+        if (!filename.endsWith(RESERVATION_FILE_EXTENSION)) {
+            filename += RESERVATION_FILE_EXTENSION;
+        }
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
             oos.writeObject(reservations);
         } catch (IOException e) {
@@ -24,6 +28,9 @@ public class FileManager {
 
     @SuppressWarnings("unchecked")
     public List<Reservation> loadReservations(String filename) {
+        if (!filename.endsWith(RESERVATION_FILE_EXTENSION)) {
+            filename += RESERVATION_FILE_EXTENSION;
+        }
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
             return (List<Reservation>) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
@@ -50,7 +57,6 @@ public class FileManager {
                     room = new Laboratory(name, capacity, feature1, feature2);
                 }
                 manager.addRoom(room);
-                System.out.println("Loaded room: " + room);
             }
         } catch (IOException e) {
             e.printStackTrace();

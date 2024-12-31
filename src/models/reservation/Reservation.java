@@ -1,10 +1,13 @@
 package models.reservation;
 
 import models.room.Room;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class Reservation {
+public class Reservation implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final Room room;
     private LocalDate date;
     private LocalTime startTime;
@@ -44,9 +47,9 @@ public class Reservation {
         if (!this.date.equals(other.date) || !this.room.equals(other.room)) {
             return false;
         }
-        return !(this.endTime.isBefore(other.startTime) || this.endTime.equals(other.startTime) || this.startTime.isAfter(other.endTime));
+        return !(this.endTime.isBefore(other.startTime) || this.startTime.isAfter(other.endTime) || this.endTime.equals(other.startTime));
     }
-
+    
     @Override
     public String toString() {
         return String.format("Reservation: %s - %s to %s by %s for %s", 
