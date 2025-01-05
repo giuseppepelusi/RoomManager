@@ -8,12 +8,14 @@ import java.time.LocalTime;
 public class Reservation implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final Room room;
+    private Room room;
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
     private String reservedBy;
     private ReservationType type;
+
+    public Reservation() {}
 
     public Reservation(Room room, LocalDate date, LocalTime startTime, LocalTime endTime, String reservedBy, ReservationType type) {
         this.room = room;
@@ -33,6 +35,7 @@ public class Reservation implements Serializable {
     public ReservationType getType() { return type; }
 
     // Setters for mutable properties
+    public void setRoom(Room room) { this.room = room; }
     public void setDate(LocalDate date) { this.date = date; }
     public void setStartTime(LocalTime startTime) { this.startTime = startTime; }
     public void setEndTime(LocalTime endTime) { this.endTime = endTime; }

@@ -26,7 +26,7 @@ public class AutoSaveManager {
     }
 
     private void performAutoSave() {
-        fileManager.autoSave(reservationManager.getAllReservations());
+        //fileManager.autoSave(reservationManager.getAllReservations());
     }
 
     public void shutdown() {

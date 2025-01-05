@@ -1,42 +1,86 @@
 package controllers;
 
 import models.reservation.Reservation;
+import models.reservation.ReservationType;
 import models.room.Classroom;
 import models.room.Laboratory;
 import models.room.Room;
 import models.room.RoomType;
 
 import java.io.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FileManager {
     private static final String DEFAULT_ROOMS_FILE = "config/rooms.txt";
-    private static final String DEFAULT_TEMP_FILE = "reservations.temp";
     private static final String RESERVATION_FILE_EXTENSION = ".resv";
 
     public void saveReservations(String filename, List<Reservation> reservations) {
         if (!filename.endsWith(RESERVATION_FILE_EXTENSION)) {
             filename += RESERVATION_FILE_EXTENSION;
         }
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
-            oos.writeObject(reservations);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            for (Reservation reservation : reservations) {
+                writer.write("RESERVATION\n");
+                writer.write("room=" + reservation.getRoom().getName() + "\n");
+                writer.write("date=" + reservation.getDate() + "\n");
+                writer.write("startTime=" + reservation.getStartTime() + "\n");
+                writer.write("endTime=" + reservation.getEndTime() + "\n");
+                writer.write("reservedBy=" + reservation.getReservedBy() + "\n");
+                writer.write("type=" + reservation.getType() + "\n");
+                writer.write("END\n\n");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public List<Reservation> loadReservations(String filename) {
+    public List<Reservation> loadReservations(String filename, ReservationManager reservationManager) {
         if (!filename.endsWith(RESERVATION_FILE_EXTENSION)) {
             filename += RESERVATION_FILE_EXTENSION;
         }
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
-            return (List<Reservation>) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
+        List<Reservation> reservations = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            Reservation reservation = null;
+            while ((line = reader.readLine()) != null) {
+                if (line.equals("RESERVATION")) {
+                    reservation = new Reservation();
+                } else if (line.equals("END")) {
+                    if (reservation != null) {
+                        reservations.add(reservation);
+                    }
+                } else if (reservation != null) {
+                    String[] parts = line.split("=");
+                    switch (parts[0]) {
+                        case "room":
+                            Room room = reservationManager.getRoom(parts[1]);
+                            reservation.setRoom(room);
+                            break;
+                        case "date":
+                            reservation.setDate(LocalDate.parse(parts[1]));
+                            break;
+                        case "startTime":
+                            reservation.setStartTime(LocalTime.parse(parts[1]));
+                            break;
+                        case "endTime":
+                            reservation.setEndTime(LocalTime.parse(parts[1]));
+                            break;
+                        case "reservedBy":
+                            reservation.setReservedBy(parts[1]);
+                            break;
+                        case "type":
+                            reservation.setType(ReservationType.valueOf(parts[1]));
+                            break;
+                    }
+                }
+            }
+        } catch (IOException e) {
             e.printStackTrace();
-            return new ArrayList<>();
         }
+        return reservations;
     }
 
     public void loadRooms(ReservationManager manager) {
@@ -61,10 +105,6 @@ public class FileManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public void autoSave(List<Reservation> reservations) {
-        saveReservations(DEFAULT_TEMP_FILE, reservations);
     }
 
     public boolean fileExists(String filename) {

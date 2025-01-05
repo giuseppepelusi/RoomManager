@@ -86,7 +86,7 @@ public class ReservationManager {
     public void loadReservations(String filename) {
         FileManager fileManager = new FileManager();
         try {
-            List<Reservation> loadedReservations = fileManager.loadReservations(filename);
+            List<Reservation> loadedReservations = fileManager.loadReservations(filename, this);
             reservations.clear();
             reservations.addAll(loadedReservations);
         } catch (Exception e) {
