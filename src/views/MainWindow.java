@@ -20,6 +20,9 @@ import java.io.File;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+/**
+ * The main window of the Room Manager application.
+ */
 public class MainWindow extends JFrame {
     private final ReservationManager reservationManager;
     private final FileManager fileManager;
@@ -27,6 +30,12 @@ public class MainWindow extends JFrame {
     private final JLabel dateLabel;
     private LocalDate currentDate;
 
+    /**
+     * Constructs a MainWindow.
+     *
+     * @param reservationManager the reservation manager
+     * @param fileManager the file manager
+     */
     public MainWindow(ReservationManager reservationManager, FileManager fileManager) {
         this.reservationManager = reservationManager;
         this.fileManager = fileManager;
@@ -37,7 +46,6 @@ public class MainWindow extends JFrame {
         setSize(1000, 650);
         setLocationRelativeTo(null);
 
-        // Create main components
         tableView = new RoomTableView(reservationManager);
         dateLabel = new JLabel(currentDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         dateLabel.addMouseListener(new MouseAdapter() {
@@ -52,15 +60,11 @@ public class MainWindow extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowOpened(WindowEvent e) {
-                // Request focus for the main content pane to ensure no button is selected
                 getContentPane().requestFocusInWindow();
             }
         });
 
-        // Create menu bar
         setJMenuBar(createMenuBar());
-
-        // Create main layout
         setLayout(new BorderLayout());
         add(createToolBar(), BorderLayout.NORTH);
         add(new JScrollPane(tableView), BorderLayout.CENTER);
@@ -68,10 +72,14 @@ public class MainWindow extends JFrame {
         updateTable();
     }
 
+    /**
+     * Creates the menu bar.
+     *
+     * @return the menu bar
+     */
     private JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
         
-        // File Menu
         JMenu fileMenu = new JMenu("File");
         JMenuItem saveItem = new JMenuItem("Save Reservations");
         saveItem.addActionListener(e -> saveReservations());
@@ -84,7 +92,6 @@ public class MainWindow extends JFrame {
         fileMenu.addSeparator();
         fileMenu.add(printItem);
         
-        // Edit Menu
         JMenu editMenu = new JMenu("Edit");
         JMenuItem addItem = new JMenuItem("Add Reservation");
         addItem.addActionListener(e -> showAddReservationDialog());
@@ -102,6 +109,11 @@ public class MainWindow extends JFrame {
         return menuBar;
     }
 
+    /**
+     * Creates the tool bar.
+     *
+     * @return the tool bar
+     */
     private JToolBar createToolBar() {
         JToolBar toolBar = new JToolBar();
         toolBar.setFloatable(false);
@@ -131,6 +143,9 @@ public class MainWindow extends JFrame {
         return toolBar;
     }
 
+    /**
+     * Shows the dialog to add a new reservation.
+     */
     private void showAddReservationDialog() {
         ReservationDialog dialog = new ReservationDialog(this, reservationManager, currentDate);
         dialog.setVisible(true);
@@ -139,6 +154,9 @@ public class MainWindow extends JFrame {
         }
     }
 
+    /**
+     * Shows the dialog to edit the selected reservation.
+     */
     private void showEditReservationDialog() {
         Reservation selectedReservation = tableView.getSelectedReservation();
         if (selectedReservation != null) {
@@ -152,6 +170,9 @@ public class MainWindow extends JFrame {
         }
     }
 
+    /**
+     * Removes the selected reservation.
+     */
     private void removeSelectedReservation() {
         Reservation selectedReservation = tableView.getSelectedReservation();
         if (selectedReservation != null) {
@@ -168,6 +189,9 @@ public class MainWindow extends JFrame {
         }
     }
 
+    /**
+     * Saves the reservations to a file.
+     */
     private void saveReservations() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileFilter(new FileNameExtensionFilter("Reservation Files (*.resv)", "resv"));
@@ -195,6 +219,9 @@ public class MainWindow extends JFrame {
         }
     }
 
+    /**
+     * Loads the reservations from a file.
+     */
     private void loadReservations() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileFilter(new FileNameExtensionFilter("Reservation Files (*.resv)", "resv"));
@@ -213,6 +240,9 @@ public class MainWindow extends JFrame {
         }
     }
 
+    /**
+     * Prints the table.
+     */
     private void printTable() {
         try {
             tableView.print();
@@ -224,20 +254,31 @@ public class MainWindow extends JFrame {
         }
     }
 
+    /**
+     * Updates the table with the current date's reservations.
+     */
     private void updateTable() {
         tableView.updateData(currentDate);
         dateLabel.setText(currentDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
     }
 
+    /**
+     * Changes the current date by a specified number of days.
+     *
+     * @param days the number of days to change the date by
+     */
     private void changeDate(int days) {
         currentDate = currentDate.plusDays(days);
         updateTable();
     }
 
+    /**
+     * Edits the current date.
+     */
     private void editDate() {
         JFormattedTextField dateField = createFormattedDateField();
         dateField.setValue(currentDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-        dateField.requestFocusInWindow(); // Set focus to the text field
+        dateField.requestFocusInWindow();
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(new JLabel("Enter new date (dd/MM/yyyy):"), BorderLayout.NORTH);
@@ -274,6 +315,11 @@ public class MainWindow extends JFrame {
         dialog.setVisible(true);
     }
 
+    /**
+     * Creates a formatted date field.
+     *
+     * @return the formatted date field
+     */
     private JFormattedTextField createFormattedDateField() {
         try {
             MaskFormatter dateFormatter = new MaskFormatter("##/##/####");

@@ -4,7 +4,10 @@ import models.room.Room;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class Reservation{
+/**
+ * Represents a reservation for a room.
+ */
+public class Reservation {
 
     private Room room;
     private LocalDate date;
@@ -13,8 +16,21 @@ public class Reservation{
     private String reservedBy;
     private ReservationType type;
 
+    /**
+     * Default constructor.
+     */
     public Reservation() {}
 
+    /**
+     * Constructs a Reservation with the specified details.
+     *
+     * @param room the room being reserved
+     * @param date the date of the reservation
+     * @param startTime the start time of the reservation
+     * @param endTime the end time of the reservation
+     * @param reservedBy the name of the person who reserved the room
+     * @param type the type of the reservation
+     */
     public Reservation(Room room, LocalDate date, LocalTime startTime, LocalTime endTime, String reservedBy, ReservationType type) {
         this.room = room;
         this.date = date;
@@ -40,10 +56,21 @@ public class Reservation{
     public void setReservedBy(String reservedBy) { this.reservedBy = reservedBy; }
     public void setType(ReservationType type) { this.type = type; }
 
+    /**
+     * Gets the duration of the reservation in hours.
+     *
+     * @return the duration in hours
+     */
     public int getDurationHours() {
         return endTime.getHour() - startTime.getHour();
     }
 
+    /**
+     * Checks if this reservation overlaps with another reservation.
+     *
+     * @param other the other reservation
+     * @return true if the reservations overlap, false otherwise
+     */
     public boolean overlaps(Reservation other) {
         if (!this.date.equals(other.date) || !this.room.equals(other.room)) {
             return false;

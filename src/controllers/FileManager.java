@@ -13,10 +13,19 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Manages file operations for saving and loading reservations and rooms.
+ */
 public class FileManager {
     private static final String DEFAULT_ROOMS_FILE = "config/rooms.txt";
     private static final String RESERVATION_FILE_EXTENSION = ".resv";
 
+    /**
+     * Saves reservations to a file.
+     *
+     * @param filename the name of the file
+     * @param reservations the list of reservations to save
+     */
     public void saveReservations(String filename, List<Reservation> reservations) {
         if (!filename.endsWith(RESERVATION_FILE_EXTENSION)) {
             filename += RESERVATION_FILE_EXTENSION;
@@ -37,6 +46,13 @@ public class FileManager {
         }
     }
 
+    /**
+     * Loads reservations from a file.
+     *
+     * @param filename the name of the file
+     * @param reservationManager the reservation manager
+     * @return the list of loaded reservations
+     */
     public List<Reservation> loadReservations(String filename, ReservationManager reservationManager) {
         if (!filename.endsWith(RESERVATION_FILE_EXTENSION)) {
             filename += RESERVATION_FILE_EXTENSION;
@@ -83,6 +99,11 @@ public class FileManager {
         return reservations;
     }
 
+    /**
+     * Loads rooms from the default configuration file.
+     *
+     * @param manager the reservation manager
+     */
     public void loadRooms(ReservationManager manager) {
         try (BufferedReader reader = new BufferedReader(new FileReader(DEFAULT_ROOMS_FILE))) {
             String line;
@@ -107,6 +128,12 @@ public class FileManager {
         }
     }
 
+    /**
+     * Checks if a file exists.
+     *
+     * @param filename the name of the file
+     * @return true if the file exists, false otherwise
+     */
     public boolean fileExists(String filename) {
         return new File(filename).exists();
     }

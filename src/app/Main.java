@@ -8,6 +8,9 @@ import utils.UIUtils;
 
 import javax.swing.*;
 
+/**
+ * The main entry point for the Room Manager application.
+ */
 public class Main {
     public static void main(String[] args) {
         // Set the look and feel to the system's look and feel

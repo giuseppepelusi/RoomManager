@@ -11,6 +11,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+/**
+ * Dialog for creating or editing a reservation.
+ */
 public class ReservationDialog extends JDialog {
     private final ReservationManager manager;
     private Reservation reservation;
@@ -28,10 +31,25 @@ public class ReservationDialog extends JDialog {
     private JCheckBox outletsCheckBox;
     private JButton okButton;
 
+    /**
+     * Constructs a ReservationDialog for creating a new reservation.
+     *
+     * @param owner the parent frame
+     * @param manager the reservation manager
+     * @param date the date of the reservation
+     */
     public ReservationDialog(Frame owner, ReservationManager manager, LocalDate date) {
         this(owner, manager, date, "New Reservation");
     }
 
+    /**
+     * Constructs a ReservationDialog with a specified title.
+     *
+     * @param owner the parent frame
+     * @param manager the reservation manager
+     * @param date the date of the reservation
+     * @param title the title of the dialog
+     */
     public ReservationDialog(Frame owner, ReservationManager manager, LocalDate date, String title) {
         super(owner, title, true);
         this.manager = manager;
@@ -47,6 +65,13 @@ public class ReservationDialog extends JDialog {
         updateOkButtonState();
     }
 
+    /**
+     * Constructs a ReservationDialog for editing an existing reservation.
+     *
+     * @param owner the parent frame
+     * @param manager the reservation manager
+     * @param reservation the reservation to edit
+     */
     public ReservationDialog(Frame owner, ReservationManager manager, Reservation reservation) {
         this(owner, manager, reservation.getDate(), "Edit Reservation");
         this.reservation = reservation;
@@ -62,6 +87,11 @@ public class ReservationDialog extends JDialog {
         updateOkButtonState();
     }
 
+    /**
+     * Creates the main panel of the dialog.
+     *
+     * @return the main panel
+     */
     private JPanel createMainPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -133,12 +163,23 @@ public class ReservationDialog extends JDialog {
         return panel;
     }
 
+    /**
+     * Creates a feature check box.
+     *
+     * @param text the text of the check box
+     * @return the check box
+     */
     private JCheckBox createFeatureCheckBox(String text) {
         JCheckBox checkBox = new JCheckBox(text);
         checkBox.setEnabled(false);
         return checkBox;
     }
 
+    /**
+     * Creates the button panel of the dialog.
+     *
+     * @return the button panel
+     */
     private JPanel createButtonPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
@@ -154,6 +195,9 @@ public class ReservationDialog extends JDialog {
         return panel;
     }
 
+    /**
+     * Updates the room features based on the selected room.
+     */
     private void updateRoomFeatures() {
         Room selectedRoom = (Room) roomCombo.getSelectedItem();
         if (selectedRoom instanceof Classroom classroom) {
@@ -179,6 +223,9 @@ public class ReservationDialog extends JDialog {
         updateStartTimeCombo();
     }
 
+    /**
+     * Updates the start time combo box based on the selected room.
+     */
     private void updateStartTimeCombo() {
         Room selectedRoom = (Room) roomCombo.getSelectedItem();
         startTimeCombo.removeAllItems();
@@ -194,6 +241,9 @@ public class ReservationDialog extends JDialog {
         updateEndTimeCombo();
     }
 
+    /**
+     * Updates the end time combo box based on the selected start time and room.
+     */
     private void updateEndTimeCombo() {
         Room selectedRoom = (Room) roomCombo.getSelectedItem();
         LocalTime startTime = (LocalTime) startTimeCombo.getSelectedItem();
@@ -218,6 +268,9 @@ public class ReservationDialog extends JDialog {
         }
     }
 
+    /**
+     * Creates a reservation based on the input fields.
+     */
     private void createReservation() {
         Room room = (Room) roomCombo.getSelectedItem();
         LocalTime startTime = (LocalTime) startTimeCombo.getSelectedItem();
@@ -262,10 +315,18 @@ public class ReservationDialog extends JDialog {
         }
     }
 
+    /**
+     * Gets the created or edited reservation.
+     *
+     * @return the reservation
+     */
     public Reservation getReservation() {
         return reservation;
     }
 
+    /**
+     * Updates the state of the OK button based on the input fields.
+     */
     private void updateOkButtonState() {
         boolean allFieldsFilled = roomCombo.getSelectedItem() != null &&
                                   startTimeCombo.getSelectedItem() != null &&
@@ -275,9 +336,17 @@ public class ReservationDialog extends JDialog {
         okButton.setEnabled(allFieldsFilled);
     }
 
+    /**
+     * Simple document listener for text field changes.
+     */
     private static class SimpleDocumentListener implements javax.swing.event.DocumentListener {
         private final Runnable onChange;
 
+        /**
+         * Constructs a SimpleDocumentListener.
+         *
+         * @param onChange the action to perform on change
+         */
         public SimpleDocumentListener(Runnable onChange) {
             this.onChange = onChange;
         }

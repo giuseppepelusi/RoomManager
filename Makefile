@@ -1,6 +1,7 @@
 SRC_DIR = src
 BIN_DIR = bin
-
+DOC_DIR = doc
+PACKAGES = app:controllers:models:utils:views
 MAIN_CLASS = app.Main
 
 all: compile run
@@ -11,9 +12,13 @@ compile:
 run:
 	java -cp $(BIN_DIR) $(MAIN_CLASS)
 
+doc:
+	javadoc -d $(DOC_DIR) -sourcepath $(SRC_DIR) -subpackages $(PACKAGES)
+
 clean:
 	rm -rf $(BIN_DIR)
-	rm autosave.resv
+	rm -rf $(DOC_DIR)
+	rm -f autosave.resv
 
-.SILENT: all compile run clean
-.PHONY: all compile run clean
+.SILENT: all compile run doc clean
+.PHONY: all compile run doc clean
