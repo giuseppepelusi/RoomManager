@@ -17,6 +17,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.io.File;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 public class MainWindow extends JFrame {
     private final ReservationManager reservationManager;
     private final FileManager fileManager;
@@ -43,6 +46,14 @@ public class MainWindow extends JFrame {
                 if (e.getClickCount() == 2) {
                     editDate();
                 }
+            }
+        });
+        
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+                // Request focus for the main content pane to ensure no button is selected
+                getContentPane().requestFocusInWindow();
             }
         });
 
