@@ -13,6 +13,7 @@ run:
 
 clean:
 	rm -rf $(BIN_DIR)
+	rm autosave.resv
 
 .SILENT: all compile run clean
 .PHONY: all compile run clean

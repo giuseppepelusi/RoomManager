@@ -5,7 +5,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class AutoSaveManager {
-    private static final int SAVE_INTERVAL_MINUTES = 5;
+    private static final int SAVE_INTERVAL_MINUTES = 1;
+    private static final String AUTO_SAVE_FILE = "autosave";
     private final ScheduledExecutorService scheduler;
     private final ReservationManager reservationManager;
     private final FileManager fileManager;
@@ -26,7 +27,7 @@ public class AutoSaveManager {
     }
 
     private void performAutoSave() {
-        //fileManager.autoSave(reservationManager.getAllReservations());
+        fileManager.saveReservations(AUTO_SAVE_FILE, reservationManager.getAllReservations());
     }
 
     public void shutdown() {
