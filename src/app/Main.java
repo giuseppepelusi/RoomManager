@@ -4,17 +4,14 @@ import controllers.ReservationManager;
 import controllers.FileManager;
 import controllers.AutoSaveManager;
 import views.MainWindow;
+import utils.UIUtils;
 
 import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
         // Set the look and feel to the system's look and feel
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    	UIUtils.setLookAndFeel();
 
         // Initialize the reservation manager and file manager
         ReservationManager reservationManager = new ReservationManager();

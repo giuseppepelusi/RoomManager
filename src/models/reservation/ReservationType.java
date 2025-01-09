@@ -1,8 +1,6 @@
 package models.reservation;
 
-import java.io.Serializable;
-
-public enum ReservationType implements Serializable {
+public enum ReservationType{
     LESSON("Lesson"),
     EXAM("Exam"),
     CATCH_UP("Catch-up"),

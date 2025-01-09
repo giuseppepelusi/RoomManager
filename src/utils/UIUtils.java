@@ -41,18 +41,4 @@ public class UIUtils {
         button.setBorderPainted(false);
         return button;
     }
-
-//    public static void addTableStripes(JTable table) {
-//        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-//            @Override
-//            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-//                Component c = super.getTableCellRendererComponent(table, value,
-//                        isSelected, hasFocus, row, column);
-//                if (!isSelected) {
-//                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 245, 245));
-//                }
-//                return c;
-//            }
-//        });
-//    }
 }

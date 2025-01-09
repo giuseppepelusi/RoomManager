@@ -1,12 +1,10 @@
 package models.reservation;
 
 import models.room.Room;
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class Reservation implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class Reservation{
 
     private Room room;
     private LocalDate date;
