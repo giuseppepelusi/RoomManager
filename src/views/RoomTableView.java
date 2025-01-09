@@ -136,7 +136,7 @@ public class RoomTableView extends JTable {
             return switch (reservation.getType()) {
                 case LESSON -> new Color(135, 206, 250); // Light Sky Blue
                 case EXAM -> new Color(255, 160, 122);   // Light Salmon
-                case RECOVERY -> new Color(144, 238, 144); // Light Green
+                case CATCH_UP -> new Color(144, 238, 144); // Light Green
                 default -> new Color(255, 255, 153);      // Light Yellow
             };
         }
