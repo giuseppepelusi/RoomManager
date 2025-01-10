@@ -105,23 +105,44 @@ public class FileManager {
      * @param manager the reservation manager
      */
     public void loadRooms(ReservationManager manager) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(DEFAULT_ROOMS_FILE))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                String name = parts[0];
-                RoomType type = RoomType.valueOf(parts[1].toUpperCase());
-                int capacity = Integer.parseInt(parts[2]);
-                boolean feature1 = Boolean.parseBoolean(parts[3]);
-                boolean feature2 = Boolean.parseBoolean(parts[4]);
-
-                Room room;
-                if (type == RoomType.CLASSROOM) {
-                    room = new Classroom(name, capacity, feature1, feature2);
+        BufferedReader reader = null;
+        try {
+            // Try external file (config/rooms.txt)
+            File externalFile = new File(DEFAULT_ROOMS_FILE);
+            if (externalFile.exists()) {
+                reader = new BufferedReader(new FileReader(externalFile));
+                System.out.println("Loaded external rooms file.");
+            } else {
+                // Fallback to internal file (packaged in JAR)
+                InputStream inputStream = getClass().getClassLoader().getResourceAsStream(DEFAULT_ROOMS_FILE);
+                if (inputStream != null) {
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+                    System.out.println("Loaded internal rooms from JAR.");
                 } else {
-                    room = new Laboratory(name, capacity, feature1, feature2);
+                    System.out.println("Rooms file not found!");
                 }
-                manager.addRoom(room);
+            }
+
+            // Reading the file if loaded
+            if (reader != null) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] parts = line.split(",");
+                    String name = parts[0];
+                    RoomType type = RoomType.valueOf(parts[1].toUpperCase());
+                    int capacity = Integer.parseInt(parts[2]);
+                    boolean feature1 = Boolean.parseBoolean(parts[3]);
+                    boolean feature2 = Boolean.parseBoolean(parts[4]);
+
+                    Room room;
+                    if (type == RoomType.CLASSROOM) {
+                        room = new Classroom(name, capacity, feature1, feature2);
+                    } else {
+                        room = new Laboratory(name, capacity, feature1, feature2);
+                    }
+                    manager.addRoom(room);
+                }
+                reader.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
