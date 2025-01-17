@@ -5,7 +5,7 @@ A Java-based application designed to manage room reservations for classrooms and
 ### **Features**
 
 - **Room Management**: Add and manage different types of rooms (Classrooms and Laboratories) with specific features.
-- **Reservation Management**: Create, edit, and delete reservations for rooms with validation to prevent conflicts.
+- **Reservation Management**: Create, edit, and delete reservations for rooms.
 - **Auto-Save**: Automatically saves reservations at regular intervals.
 - **File Operations**: Save and load reservations from files.
 - **User Interface**: Intuitive GUI built with Swing and AWT.
@@ -64,11 +64,19 @@ The provided Makefile includes several targets for common tasks:
   ```sh
   make jar
   ```
+  - **Run the JAR**
+  	```sh
+   	java -jar RoomManager.jar
+   	```
 
 - **Generate documentation**:
   ```sh
   make doc
   ```
+  - **Open the documentation**
+  	```sh
+   	open doc/index.html
+   	```
 
 - **Clean the build and documentation directories**:
   ```sh
